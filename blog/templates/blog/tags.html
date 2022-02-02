@@ -1,0 +1,14 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    <div class="container mt-3">
+        <h3>List of Tags</h3>
+        <hr>
+        {% if tags|length == 0 %}
+            <p class="alert alert-warning">No tags yet!</p>
+        {% endif %}
+        {% for tag in tags %}
+            <a href="{% url 'tag-posts' tag.id %}" class="btn btn-sm btn-outline-primary">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}
