@@ -35,6 +35,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'tags' %}">Tags</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profiles-list' %}">Profiles</a>
+                </li>
             </ul>
             <div>
                 {% if not user.is_authenticated %}

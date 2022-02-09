@@ -21,10 +21,10 @@ def register(request):
             username = form.cleaned_data.get('username')
             messages.success(request, f"Account created for {username}")
             return redirect('blog-home')
-            
+
     else:
         form = UserRegisterForm()
-    
+
     return render(request, 'users/register.html', {"form": form})
 
 
@@ -57,7 +57,10 @@ class ProfileListView(ListView):
     queryset = Profile.objects.prefetch_related('user')
 
     def get_context_data(self, **kwargs):
-        context = {'profile_followings_idx': [p.id for p in self.request.user.profile.followings.all()]}
+        if self.request.user.is_authenticated:
+            context = {'profile_followings_idx': [p.id for p in self.request.user.profile.followings.all()]}
+        else:
+            context = {}
         kwargs.update(context)
         return super().get_context_data(**kwargs)
 
