@@ -1,0 +1,68 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    <div class="container mt-3">
+        <h3>List of Users</h3>
+        <hr>
+        {% if profiles|length == 0 %}
+            <p class="alert alert-warning">No users yet!</p>
+        {% else %}
+            <div class="col-sm-12 col-md-6 col-lg-4 m-auto">
+                <ul class="list-group">
+                    {% for profile in profiles %}
+                        <li class="list-group-item d-flex">
+                            <span class="me-auto">{{ profile.user.username }}</span>
+                            <div>
+                                {% if user.is_authenticated and user.profile.id != profile.id %}
+                                    {% if profile.id in profile_followings_idx %}
+                                        <a href="" class="btn btn-sm btn-success follow-btn"
+                                           data-is_following=1 data-url="{% url 'follow-profile' profile.id %}">following</a>
+                                    {% else %}
+                                        <a href="" class="btn btn-sm btn-outline-success follow-btn"
+                                           data-is_following=0
+                                           data-url="{% url 'follow-profile' profile.id %}">follow</a>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="{% url 'user-posts' profile.user.username %}"
+                                   class="btn btn-sm btn-outline-primary">Posts</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    {% csrf_token %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        $(document).ready(function () {
+            $('.follow-btn').on('click', function (e) {
+                e.preventDefault();
+
+                const isFollowing = $(this).data('is_following');
+                const url = $(this).data('url');
+
+                $.ajax({
+                    url,
+                    type: 'PUT',
+                    headers: {'X-CSRFToken': csrf_token},
+                    mode: 'same-origin',
+                    data: {
+                        'is_following': isFollowing,
+                    },
+                }).done(function (data) {
+                    location.reload();
+                }).fail(function (xhr, textStatus, errorThrown) {
+                    console.log(xhr.responseText)
+                    alert("Whoops! Something went wrong. check console.")
+                });
+            });
+        });
+    </script>
+{% endblock %}

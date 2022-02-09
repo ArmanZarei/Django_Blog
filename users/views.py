@@ -1,7 +1,16 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.views.generic import ListView
+from django.http import JsonResponse
+
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
+
+from .models import Profile
+from django.views import View
+
+from django.http import QueryDict
 
 
 def register(request):
@@ -40,3 +49,25 @@ def profile(request):
     }
 
     return render(request, 'users/profile.html', context)
+
+
+class ProfileListView(ListView):
+    model = Profile
+    context_object_name = 'profiles'
+    queryset = Profile.objects.prefetch_related('user')
+
+    def get_context_data(self, **kwargs):
+        context = {'profile_followings_idx': [p.id for p in self.request.user.profile.followings.all()]}
+        kwargs.update(context)
+        return super().get_context_data(**kwargs)
+
+
+class FollowingView(LoginRequiredMixin, View):
+    def put(self, request, *args, **kwargs):
+        is_following = int(QueryDict(request.body)['is_following'])
+        if is_following == 1:
+            self.request.user.profile.followings.remove(kwargs['pk'])
+        else:
+            self.request.user.profile.followings.add(kwargs['pk'])
+
+        return JsonResponse({"success": True})
