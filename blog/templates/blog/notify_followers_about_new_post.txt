@@ -1,0 +1,7 @@
+Dear user,
+{{ post.author.username }} just published a new post. check it out:
+{{ post_url }}
+
+
+Best,
+Django Blog

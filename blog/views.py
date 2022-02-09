@@ -10,7 +10,7 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from blog.tasks import random_tag_post
+from blog.tasks import random_tag_post, send_email_to_followers
 
 
 class PostListView(ListView):
@@ -46,6 +46,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         response = super(PostCreateView, self).form_valid(form)
 
         random_tag_post.delay(self.object.id)
+        send_email_to_followers.delay(self.request.user.id, self.object.id)
 
         return response
 
